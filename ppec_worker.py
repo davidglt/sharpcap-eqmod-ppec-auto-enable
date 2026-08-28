@@ -6,7 +6,7 @@
 r"""
 ppec_worker.py — CPython worker for PPEC activation.
 
-CPython worker -- v1.0.2
+CPython worker -- v1.0.3
 
 Activates mount-native PPEC on the EQ8-R Pro via EQMOD.Telescope
 CommandString passthrough. No UI automation required.
@@ -20,6 +20,10 @@ passthroughs using the '>' prefix WITHOUT a trailing '#':
                                                 '=260001\r' (PPEC on)
   scope.CommandString('>:W1020000', False)  ->  '='\r'       (enable)
   scope.CommandString('>:W1030000', False)  ->  '='\r'       (disable)
+
+The COM object is created once and reused across poll iterations.
+Recreating it on every iteration can return a stale object whose
+Tracking property reads False even when the mount is already tracking.
 
 Requirements
 ------------
@@ -37,7 +41,7 @@ David González López-Tercero
 Contact
 -------
 Email: davidglt@dragonit.es
-Website: https://www.dragonit.es
+Website: https://dragonit.es
 
 License
 -------
@@ -104,7 +108,7 @@ def disconnect(scope):
 
 def main():
     log.info("=" * 52)
-    log.info("PPEC worker v1.0.2 starting -- %s",
+    log.info("PPEC worker v1.0.3 starting -- %s",
              datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     log.info("Log: %s  (overwritten each run)", LOG_FILE)
 
@@ -116,21 +120,26 @@ def main():
         sys.exit(1)
 
     log.info("Waiting for EQMOD.Telescope (checking every %ds)...", CONNECT_INTERVAL)
+
+    # The COM object is created once and reused across iterations.
+    # Recreating it on every loop can return a stale proxy whose Tracking
+    # property reads False even when the mount is already tracking.
     scope = None
     while True:
         try:
-            s = win32com.client.Dispatch("EQMOD.Telescope")
-            if not s.Connected:
-                s.Connected = True
-            if s.Tracking:
-                scope = s
+            if scope is None:
+                scope = win32com.client.Dispatch("EQMOD.Telescope")
+            if not scope.Connected:
+                scope.Connected = True
+            if scope.Tracking:
                 log.info("EQMOD connected and tracking.")
                 break
             log.info("Connected but not tracking yet. Next check in %ds...",
                      CONNECT_INTERVAL)
         except Exception as exc:
-            log.info("EQMOD not ready (%s). Next check in %ds...",
+            log.info("EQMOD not ready (%s). Retrying in %ds...",
                      exc, CONNECT_INTERVAL)
+            scope = None  # recreate only after a hard failure
         time.sleep(CONNECT_INTERVAL)
 
     status = read_ppec_status(scope)
