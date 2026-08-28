@@ -19,7 +19,7 @@
 # <https://www.gnu.org/licenses/>.
 #
 # ---------------------------------------------------------------------------
-# CPython worker -- v1.0.0
+# CPython worker -- v1.0.1
 #
 # Activates mount-native PPEC on the EQ8-R Pro via EQMOD.Telescope
 # CommandString passthrough. No UI automation required.
@@ -87,11 +87,20 @@ def read_ppec_status(scope):
         log.error("Error querying PPEC status: %s", exc)
         return "error"
 
+
+def disconnect(scope):
+    """Disconnect the ASCOM client so EQMOD can close cleanly."""
+    try:
+        scope.Connected = False
+        log.info("ASCOM client disconnected.")
+    except Exception as exc:
+        log.warning("Could not disconnect ASCOM client: %s", exc)
+
 # == MAIN =====================================================================
 
 def main():
     log.info("=" * 52)
-    log.info("PPEC worker v1.0.0 starting -- %s",
+    log.info("PPEC worker v1.0.1 starting -- %s",
              datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
 
     try:
@@ -124,6 +133,7 @@ def main():
 
     if status == "ON":
         log.info("PPEC already active. Nothing to do.")
+        disconnect(scope)
         log.info("END -- worker finished successfully.")
         log.info("=" * 52)
         sys.exit(0)
@@ -134,6 +144,7 @@ def main():
         log.info("Enable command response: %r", response)
     except Exception as exc:
         log.error("Failed to send enable command: %s", exc)
+        disconnect(scope)
         sys.exit(1)
 
     time.sleep(2)
@@ -145,6 +156,7 @@ def main():
     else:
         log.warning("PPEC status is '%s' after enable command. Check EQMOD Development Testing Area.", final_status)
 
+    disconnect(scope)
     log.info("END -- worker finished successfully.")
     log.info("=" * 52)
 
