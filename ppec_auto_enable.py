@@ -1,48 +1,47 @@
-# ppec_auto_enable.py -- Automatic PPEC activation for EQMOD/EQASCOM.
-#
-# Copyright (C) 2026  David González López-Tercero
-#
-# This file is part of sharpcap-eqmod-ppec-auto-enable.
-# <https://github.com/davidglt/sharpcap-eqmod-ppec-auto-enable>
-#
-# sharpcap-eqmod-ppec-auto-enable is free software: you can redistribute
-# it and/or modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-#
-# sharpcap-eqmod-ppec-auto-enable is distributed in the hope that it will
-# be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-# Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with sharpcap-eqmod-ppec-auto-enable. If not, see
-# <https://www.gnu.org/licenses/>.
-#
-# ---------------------------------------------------------------------------
-# SharpCap IronPython Startup Script  --  v1.0.2
-# Place this file in SharpCap Settings -> Scripting ->
-# "Run these Python scripts when SharpCap starts".
-#
-# Why a subprocess?
-# -----------------
-# SharpCap runs scripts in IronPython, whose mount.AscomMount wrapper
-# does NOT expose the low-level EQMOD motor-controller passthrough in a
-# useful way for mount-native PPEC activation.
-#
-# EQASCOM is a COM local server that supports multiple simultaneous
-# clients -- this is a second independent connection alongside SharpCap.
-# So we connect a second independent client (CPython + win32com) that
-# talks directly to EQMOD.Telescope and has full CommandString access.
-#
-# This script (IronPython) waits for tracking, then launches the
-# CPython worker (ppec_worker.py) via the project .venv.
-#
-# Requirements
-# ------------
-# From the project root:  .venv\Scripts\pip install -r requirements\requirements.txt
-# Both files must be in the same folder as .venv\
-# ---------------------------------------------------------------------------
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# SPDX-FileCopyrightText: 2026 David González López-Tercero <davidglt@dragonit.es>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+r"""
+ppec_auto_enable.py — Automatic PPEC activation for EQMOD/EQASCOM.
+
+SharpCap IronPython Startup Script  --  v1.0.2
+Place this file in SharpCap Settings -> Scripting ->
+"Run these Python scripts when SharpCap starts".
+
+Why a subprocess?
+-----------------
+SharpCap runs scripts in IronPython, whose mount.AscomMount wrapper
+does NOT expose the low-level EQMOD motor-controller passthrough in a
+useful way for mount-native PPEC activation.
+
+EQASCOM is a COM local server that supports multiple simultaneous
+clients -- this is a second independent connection alongside SharpCap.
+So we connect a second independent client (CPython + win32com) that
+talks directly to EQMOD.Telescope and has full CommandString access.
+
+This script (IronPython) waits for tracking, then launches the
+CPython worker (ppec_worker.py) via the project .venv.
+
+Requirements
+------------
+From the project root:  .venv\Scripts\pip install -r requirements\requirements.txt
+Both files must be in the same folder as .venv\
+
+Author
+------
+David González López-Tercero
+
+Contact
+-------
+Email: davidglt@dragonit.es
+Website: https://www.dragonit.es
+
+License
+-------
+GPL-3.0-or-later  <https://www.gnu.org/licenses/>
+"""
 
 import time
 import datetime

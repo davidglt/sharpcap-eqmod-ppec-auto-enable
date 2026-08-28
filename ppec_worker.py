@@ -1,49 +1,48 @@
-# ppec_worker.py -- CPython worker for PPEC activation.
-#
-# Copyright (C) 2026  David González López-Tercero
-#
-# This file is part of sharpcap-eqmod-ppec-auto-enable.
-# <https://github.com/davidglt/sharpcap-eqmod-ppec-auto-enable>
-#
-# sharpcap-eqmod-ppec-auto-enable is free software: you can redistribute
-# it and/or modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-#
-# sharpcap-eqmod-ppec-auto-enable is distributed in the hope that it will
-# be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-# Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with sharpcap-eqmod-ppec-auto-enable. If not, see
-# <https://www.gnu.org/licenses/>.
-#
-# ---------------------------------------------------------------------------
-# CPython worker -- v1.0.2
-#
-# Activates mount-native PPEC on the EQ8-R Pro via EQMOD.Telescope
-# CommandString passthrough. No UI automation required.
-#
-# How it works
-# ------------
-# EQMOD.Telescope.CommandString accepts low-level motor-controller
-# passthroughs using the '>' prefix WITHOUT a trailing '#':
-#
-#   scope.CommandString('>:q1010000', False)  ->  '=060001\r' (PPEC off)
-#                                                 '=260001\r' (PPEC on)
-#   scope.CommandString('>:W1020000', False)  ->  '=\r'       (enable)
-#   scope.CommandString('>:W1030000', False)  ->  '=\r'       (disable)
-#
-# Requirements
-# ------------
-# .venv\Scripts\pip install -r requirements\requirements.txt
-#
-# Log
-# ---
-# logs/ppec_worker.log  (overwritten on each run -- permanent record is
-# SharpCap's own log via stdout)
-# ---------------------------------------------------------------------------
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# SPDX-FileCopyrightText: 2026 David González López-Tercero <davidglt@dragonit.es>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+r"""
+ppec_worker.py — CPython worker for PPEC activation.
+
+CPython worker -- v1.0.2
+
+Activates mount-native PPEC on the EQ8-R Pro via EQMOD.Telescope
+CommandString passthrough. No UI automation required.
+
+How it works
+------------
+EQMOD.Telescope.CommandString accepts low-level motor-controller
+passthroughs using the '>' prefix WITHOUT a trailing '#':
+
+  scope.CommandString('>:q1010000', False)  ->  '=060001\r' (PPEC off)
+                                                '=260001\r' (PPEC on)
+  scope.CommandString('>:W1020000', False)  ->  '='\r'       (enable)
+  scope.CommandString('>:W1030000', False)  ->  '='\r'       (disable)
+
+Requirements
+------------
+.venv\Scripts\pip install -r requirements\requirements.txt
+
+Log
+---
+logs/ppec_worker.log  (overwritten on each run -- permanent record is
+SharpCap's own log via stdout)
+
+Author
+------
+David González López-Tercero
+
+Contact
+-------
+Email: davidglt@dragonit.es
+Website: https://www.dragonit.es
+
+License
+-------
+GPL-3.0-or-later  <https://www.gnu.org/licenses/>
+"""
 
 import time
 import datetime
