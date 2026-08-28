@@ -1,0 +1,8 @@
+# eqmod-ppec-auto-enable -- Python dependencies
+#
+# Installation:
+#   pip install -r requirements/requirements.txt
+#
+# Note: pywin32 is Windows-only (required for ASCOM/COM).
+
+pywin32>=306
