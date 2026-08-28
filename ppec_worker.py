@@ -19,7 +19,7 @@
 # <https://www.gnu.org/licenses/>.
 #
 # ---------------------------------------------------------------------------
-# CPython worker -- v1.0.1
+# CPython worker -- v1.0.2
 #
 # Activates mount-native PPEC on the EQ8-R Pro via EQMOD.Telescope
 # CommandString passthrough. No UI automation required.
@@ -40,7 +40,8 @@
 #
 # Log
 # ---
-# ppec_worker.log  (same folder as this script)
+# logs/ppec_worker.log  (overwritten on each run -- permanent record is
+# SharpCap's own log via stdout)
 # ---------------------------------------------------------------------------
 
 import time
@@ -49,14 +50,17 @@ import sys
 import os
 import logging
 
-LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ppec_worker.log")
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_DIR    = os.path.join(SCRIPT_DIR, "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_FILE   = os.path.join(LOG_DIR, "ppec_worker.log")
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s  %(levelname)-8s  [PPEC-worker]  %(message)s",
     datefmt="%H:%M:%S",
     handlers=[
-        logging.FileHandler(LOG_FILE, encoding="utf-8"),
+        logging.FileHandler(LOG_FILE, mode="w", encoding="utf-8"),
         logging.StreamHandler(sys.stdout),
     ],
 )
@@ -100,8 +104,9 @@ def disconnect(scope):
 
 def main():
     log.info("=" * 52)
-    log.info("PPEC worker v1.0.1 starting -- %s",
+    log.info("PPEC worker v1.0.2 starting -- %s",
              datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
+    log.info("Log: %s  (overwritten each run)", LOG_FILE)
 
     try:
         import win32com.client
