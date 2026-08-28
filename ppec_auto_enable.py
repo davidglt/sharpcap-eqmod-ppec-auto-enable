@@ -1,25 +1,26 @@
 # ppec_auto_enable.py -- Automatic PPEC activation for EQMOD/EQASCOM.
 #
-# Copyright (C) 2026 David Gonzalez Lopez-Tercero
+# Copyright (C) 2026  David González López-Tercero
 #
 # This file is part of sharpcap-eqmod-ppec-auto-enable.
+# <https://github.com/davidglt/sharpcap-eqmod-ppec-auto-enable>
 #
-# sharpcap-eqmod-ppec-auto-enable is free software: you can redistribute it
-# and/or modify it under the terms of the GNU General Public License as
+# sharpcap-eqmod-ppec-auto-enable is free software: you can redistribute
+# it and/or modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# sharpcap-eqmod-ppec-auto-enable is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
+# sharpcap-eqmod-ppec-auto-enable is distributed in the hope that it will
+# be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+# Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with sharpcap-eqmod-ppec-auto-enable. If not, see
+# You should have received a copy of the GNU General Public License along
+# with sharpcap-eqmod-ppec-auto-enable. If not, see
 # <https://www.gnu.org/licenses/>.
 #
 # ---------------------------------------------------------------------------
-# SharpCap IronPython Startup Script  --  v1.0.0
+# SharpCap IronPython Startup Script  --  v1.0.2
 # Place this file in SharpCap Settings -> Scripting ->
 # "Run these Python scripts when SharpCap starts".
 #
@@ -75,7 +76,7 @@ def error(msg): log("ERROR",   msg)
 
 def enable_ppec_when_ready():
     info("=" * 52)
-    info("PPEC Auto-Enable v1.0.0 starting...")
+    info("PPEC Auto-Enable v1.0.2 starting...")
     info("Worker interpreter: {}".format(PYTHON_EXE))
 
     if not os.path.exists(PYTHON_EXE):
@@ -121,7 +122,7 @@ def enable_ppec_when_ready():
             creationflags=0x08000000,  # CREATE_NO_WINDOW
         )
         info("Worker launched (PID {}).".format(proc.pid))
-        info("Check ppec_worker.log in: {}".format(SCRIPT_DIR))
+        info("Check logs/ppec_worker.log in: {}".format(SCRIPT_DIR))
     except Exception as exc:
         error("Could not launch worker: {}".format(exc))
 

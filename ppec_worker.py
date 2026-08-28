@@ -1,21 +1,22 @@
 # ppec_worker.py -- CPython worker for PPEC activation.
 #
-# Copyright (C) 2026 David Gonzalez Lopez-Tercero
+# Copyright (C) 2026  David González López-Tercero
 #
 # This file is part of sharpcap-eqmod-ppec-auto-enable.
+# <https://github.com/davidglt/sharpcap-eqmod-ppec-auto-enable>
 #
-# sharpcap-eqmod-ppec-auto-enable is free software: you can redistribute it
-# and/or modify it under the terms of the GNU General Public License as
+# sharpcap-eqmod-ppec-auto-enable is free software: you can redistribute
+# it and/or modify it under the terms of the GNU General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 #
-# sharpcap-eqmod-ppec-auto-enable is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# General Public License for more details.
+# sharpcap-eqmod-ppec-auto-enable is distributed in the hope that it will
+# be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+# Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with sharpcap-eqmod-ppec-auto-enable. If not, see
+# You should have received a copy of the GNU General Public License along
+# with sharpcap-eqmod-ppec-auto-enable. If not, see
 # <https://www.gnu.org/licenses/>.
 #
 # ---------------------------------------------------------------------------
