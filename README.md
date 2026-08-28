@@ -12,7 +12,7 @@ No UI automation, no extra windows, no pywinauto required.
 
 ## Version
 
-Current release: **1.0.0**
+Current release: **1.0.1**
 
 ## Reference Setup
 
@@ -44,12 +44,12 @@ ppec_worker.py  (CPython, subprocess)
         |-- Poll every 10s until EQMOD.Telescope is connected + tracking
         |
         |-- Query PPEC state  (:q1010000 via CommandString passthrough)
-        |       |-- =260001  --> Already active --> END OK
+        |       |-- =260001  --> Already active --> Disconnect --> END OK
         |       +--> =060001 --> Inactive       --> Continue
         |
         +--> Enable PPEC (:W1020000 via CommandString passthrough)
                 |
-                +--> Confirm :q1010000 --> =260001 --> END OK
+                +--> Confirm :q1010000 --> =260001 --> Disconnect --> END OK
 ```
 
 ### Why a subprocess?
@@ -83,6 +83,9 @@ Firmware responses:
 
 These commands were captured from EQMOD's internal serial-port log while
 operating the Development Testing Area panel.
+
+**Official EQASCOM CommandString reference:**
+[EQASCOM Supported ASCOM Properties and Methods (PDF)](https://eq-mod.sourceforge.net/docs/EQASCOM_compliancy.pdf)
 
 ## Requirements
 
