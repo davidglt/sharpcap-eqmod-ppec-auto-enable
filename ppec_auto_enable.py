@@ -24,6 +24,13 @@ talks directly to EQMOD.Telescope and has full CommandString access.
 This script (IronPython) waits for tracking, then launches the
 CPython worker (ppec_worker.py) via the project .venv.
 
+Non-blocking startup
+--------------------
+SharpCap executes startup scripts sequentially in the same thread.
+To avoid blocking subsequent scripts (e.g. log_conditions.py from
+bme280-observatory), the main logic runs in a background daemon thread
+that returns control to SharpCap immediately.
+
 Requirements
 ------------
 From the project root:  .venv\Scripts\pip install -r requirements\requirements.txt
@@ -47,6 +54,9 @@ import time
 import datetime
 import os
 import subprocess
+
+clr.AddReference("System.Threading")
+from System.Threading import Thread, ThreadStart, ApartmentState
 
 # == CONFIGURATION ============================================================
 
@@ -129,4 +139,11 @@ def enable_ppec_when_ready():
     info("=" * 52)
 
 
-enable_ppec_when_ready()
+# == ENTRY POINT ==============================================================
+# Run in a background daemon thread so SharpCap is not blocked and
+# subsequent startup scripts execute immediately.
+
+t = Thread(ThreadStart(enable_ppec_when_ready))
+t.IsBackground = True
+t.ApartmentState = ApartmentState.STA
+t.Start()

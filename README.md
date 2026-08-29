@@ -12,7 +12,7 @@ No UI automation, no extra windows, no pywinauto required.
 
 ## Version
 
-Current release: **1.0.1**
+Current release: **1.0.2**
 
 ## Reference Setup
 
@@ -33,6 +33,9 @@ SharpCap starts
         |
         +-- ppec_auto_enable.py  (IronPython, inside SharpCap)
                 |
+                |-- Launch background thread --> returns immediately
+                |
+                |   [background thread]
                 |-- Poll every 30s until SharpCap has a mount connected
                 |
                 |-- Poll every 30s until mount.Tracking == True
@@ -51,6 +54,18 @@ ppec_worker.py  (CPython, subprocess)
                 |
                 +--> Confirm :q1010000 --> =260001 --> Disconnect --> END OK
 ```
+
+### Non-blocking startup
+
+SharpCap executes startup scripts **sequentially** in a single thread.
+If a script blocks (e.g. with a polling loop), the next script never runs
+until the first one finishes.
+
+`ppec_auto_enable.py` spawns a background daemon thread
+(`System.Threading.Thread`, `IsBackground = True`) and returns
+immediately, so any subsequent startup scripts (e.g. `log_conditions.py`
+from [bme280-observatory](https://github.com/davidglt/bme280-observatory))
+execute without delay.
 
 ### Why a subprocess?
 

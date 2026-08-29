@@ -6,6 +6,35 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.0.2] - 2026-08-29
+
+### Fixed
+
+- `ppec_auto_enable.py`: the main logic (`enable_ppec_when_ready`) now runs
+  in a **background daemon thread** (`System.Threading.Thread`,
+  `IsBackground = True`, `ApartmentState.STA`).
+  Previously the script blocked SharpCap's startup sequence while polling
+  for mount connection and tracking — any subsequent startup script (e.g.
+  `log_conditions.py` from *bme280-observatory*) would not execute until
+  PPEC was fully activated.  The fix returns control to SharpCap
+  immediately after the thread is started.
+
+### Changed
+
+- Version string in script header and log output updated to `v1.0.2`.
+- README updated: version badge → 1.0.2, added *Non-blocking startup*
+  section explaining the threading model.
+
+---
+
+## [1.0.1] - 2026-08-28
+
+### Changed
+
+- README: minor corrections and formatting.
+
+---
+
 ## [1.0.0] - 2026-08-28
 
 ### Added
