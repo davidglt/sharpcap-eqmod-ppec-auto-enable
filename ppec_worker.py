@@ -104,6 +104,42 @@ def disconnect(scope):
     except Exception as exc:
         log.warning("Could not disconnect ASCOM client: %s", exc)
 
+
+def ensure_ppec_enabled(scope):
+    status = read_ppec_status(scope)
+    log.info("PPEC status: %s", status)
+
+    if status == "ON":
+        log.info("PPEC already active. Nothing to do.")
+        return True
+    if status != "OFF":
+        log.error("Cannot safely enable PPEC with unconfirmed status: %s", status)
+        return False
+
+    log.info("Enabling PPEC via :W1020000...")
+    try:
+        response = motor_cmd(scope, ":W1020000")
+        log.info("Enable command response: %r", response)
+    except Exception as exc:
+        log.error("Failed to send enable command: %s", exc)
+        return False
+
+    time.sleep(2)
+    final_status = read_ppec_status(scope)
+    log.info("PPEC status after enable: %s", final_status)
+
+    if final_status != "ON":
+        log.error(
+            "PPEC activation was not confirmed (status: %s). "
+            "Check EQMOD Development Testing Area.",
+            final_status,
+        )
+        return False
+
+    log.info("PPEC firmware enabled and confirmed: PPEC is ON.")
+    return True
+
+
 # == MAIN =====================================================================
 
 def main():
@@ -142,35 +178,15 @@ def main():
             scope = None  # recreate only after a hard failure
         time.sleep(CONNECT_INTERVAL)
 
-    status = read_ppec_status(scope)
-    log.info("PPEC status: %s", status)
-
-    if status == "ON":
-        log.info("PPEC already active. Nothing to do.")
-        disconnect(scope)
-        log.info("END -- worker finished successfully.")
-        log.info("=" * 52)
-        sys.exit(0)
-
-    log.info("Enabling PPEC via :W1020000...")
     try:
-        response = motor_cmd(scope, ":W1020000")
-        log.info("Enable command response: %r", response)
-    except Exception as exc:
-        log.error("Failed to send enable command: %s", exc)
+        enabled = ensure_ppec_enabled(scope)
+    finally:
         disconnect(scope)
+
+    if not enabled:
+        log.error("END -- worker finished with errors.")
         sys.exit(1)
 
-    time.sleep(2)
-    final_status = read_ppec_status(scope)
-    log.info("PPEC status after enable: %s", final_status)
-
-    if final_status == "ON":
-        log.info("PPEC firmware enabled and confirmed: PPEC is ON.")
-    else:
-        log.warning("PPEC status is '%s' after enable command. Check EQMOD Development Testing Area.", final_status)
-
-    disconnect(scope)
     log.info("END -- worker finished successfully.")
     log.info("=" * 52)
 

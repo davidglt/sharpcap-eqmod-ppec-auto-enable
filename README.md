@@ -156,7 +156,12 @@ Edit the constants at the top of each script:
 |---|---|
 | SharpCap scripting console | `Scripting -> Show Console` or `Alt+F11` |
 | SharpCap main log | `File -> Show Log` |
-| Worker log file | `ppec_worker.log` in the project folder |
+| Worker log file | `logs/ppec_worker.log` |
+
+The launcher discards the worker's standard output; the worker log file is the
+diagnostic record. The worker exits with an error status if the initial PPEC
+state cannot be confirmed, the enable command fails, or PPEC is not confirmed
+active afterward.
 
 ## License
 

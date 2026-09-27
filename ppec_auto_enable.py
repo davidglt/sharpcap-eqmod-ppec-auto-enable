@@ -126,8 +126,8 @@ def enable_ppec_when_ready():
     try:
         proc = subprocess.Popen(
             [PYTHON_EXE, worker_path],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
             creationflags=0x08000000,  # CREATE_NO_WINDOW
         )
         info("Worker launched (PID {}).".format(proc.pid))
