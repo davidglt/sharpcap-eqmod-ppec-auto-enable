@@ -67,6 +67,12 @@ immediately, so any subsequent startup scripts (e.g. `log_conditions.py`
 from [bme280-observatory](https://github.com/davidglt/bme280-observatory))
 execute without delay.
 
+A named Windows mutex keeps multiple executions of the startup script from
+launching duplicate workers. The lock remains held while waiting for the mount
+and tracking, and until the worker exits. Waiting for the mount and worker has
+no timeout. SharpCap's log reports whether the worker exits successfully or
+with an error code.
+
 ### Why a subprocess?
 
 SharpCap runs startup scripts in IronPython. The `mount.AscomMount` wrapper

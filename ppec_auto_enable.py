@@ -56,11 +56,18 @@ import os
 import subprocess
 
 clr.AddReference("System.Threading")
-from System.Threading import Thread, ThreadStart, ApartmentState
+from System.Threading import (
+    AbandonedMutexException,
+    ApartmentState,
+    Mutex,
+    Thread,
+    ThreadStart,
+)
 
 # == CONFIGURATION ============================================================
 
 CHECK_INTERVAL = 30   # seconds between polling attempts
+MUTEX_NAME = "Local\\SharpCapEqmodPpecAutoEnable"
 
 # CPython interpreter inside the project virtual environment.
 # Assumes .venv is in the same folder as this script.
@@ -84,59 +91,90 @@ def error(msg): log("ERROR",   msg)
 # == MAIN LOGIC ===============================================================
 
 def enable_ppec_when_ready():
-    info("=" * 52)
-    info("PPEC Auto-Enable v1.0.2 starting...")
-    info("Worker interpreter: {}".format(PYTHON_EXE))
-
-    if not os.path.exists(PYTHON_EXE):
-        error(".venv not found at: {}".format(PYTHON_EXE))
-        error("Run from project root:  python -m venv .venv")
-        error("Then:  .venv\\Scripts\\pip install -r requirements\\requirements.txt")
-        info("END -- script finished with errors.")
-        info("=" * 52)
-        return
-
-    # 1) Wait until SharpCap has a mount connected
-    info("Waiting for mount (checking every {}s)...".format(CHECK_INTERVAL))
-    mount = SharpCap.Mounts.SelectedMount
-    while mount is None:
-        info("No mount connected yet. Next check in {}s...".format(CHECK_INTERVAL))
-        time.sleep(CHECK_INTERVAL)
-        mount = SharpCap.Mounts.SelectedMount
-
-    info("Mount found: {}".format(mount.Name))
-
-    # 2) Wait until sidereal tracking starts
-    info("Waiting for tracking (checking every {}s)...".format(CHECK_INTERVAL))
-    while not mount.Tracking:
-        info("Mount not tracking yet. Next check in {}s...".format(CHECK_INTERVAL))
-        time.sleep(CHECK_INTERVAL)
-
-    info("Tracking detected. Launching CPython worker...")
-
-    # 3) Launch ppec_worker.py via .venv CPython
-    worker_path = os.path.join(SCRIPT_DIR, "ppec_worker.py")
-
-    if not os.path.exists(worker_path):
-        error("Worker not found: {}".format(worker_path))
-        info("END -- script finished with errors.")
-        info("=" * 52)
-        return
-
+    mutex = Mutex(False, MUTEX_NAME)
+    owns_mutex = False
     try:
-        proc = subprocess.Popen(
-            [PYTHON_EXE, worker_path],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            creationflags=0x08000000,  # CREATE_NO_WINDOW
-        )
+        try:
+            owns_mutex = mutex.WaitOne(0)
+        except AbandonedMutexException:
+            owns_mutex = True
+            error("Recovered the PPEC auto-enable lock after an interrupted run.")
+
+        if not owns_mutex:
+            info("Another PPEC auto-enable instance is already active; skipping.")
+            return
+
+        info("=" * 52)
+        info("PPEC Auto-Enable v1.0.2 starting...")
+        info("Worker interpreter: {}".format(PYTHON_EXE))
+
+        if not os.path.exists(PYTHON_EXE):
+            error(".venv not found at: {}".format(PYTHON_EXE))
+            error("Run from project root:  python -m venv .venv")
+            error("Then:  .venv\\Scripts\\pip install -r requirements\\requirements.txt")
+            info("END -- script finished with errors.")
+            info("=" * 52)
+            return
+
+        # 1) Wait until SharpCap has a mount connected
+        info("Waiting for mount (checking every {}s)...".format(CHECK_INTERVAL))
+        mount = SharpCap.Mounts.SelectedMount
+        while mount is None:
+            info("No mount connected yet. Next check in {}s...".format(CHECK_INTERVAL))
+            time.sleep(CHECK_INTERVAL)
+            mount = SharpCap.Mounts.SelectedMount
+
+        info("Mount found: {}".format(mount.Name))
+
+        # 2) Wait until sidereal tracking starts
+        info("Waiting for tracking (checking every {}s)...".format(CHECK_INTERVAL))
+        while not mount.Tracking:
+            info("Mount not tracking yet. Next check in {}s...".format(CHECK_INTERVAL))
+            time.sleep(CHECK_INTERVAL)
+
+        info("Tracking detected. Launching CPython worker...")
+
+        # 3) Launch ppec_worker.py via .venv CPython
+        worker_path = os.path.join(SCRIPT_DIR, "ppec_worker.py")
+
+        if not os.path.exists(worker_path):
+            error("Worker not found: {}".format(worker_path))
+            info("END -- script finished with errors.")
+            info("=" * 52)
+            return
+
+        try:
+            proc = subprocess.Popen(
+                [PYTHON_EXE, worker_path],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                creationflags=0x08000000,  # CREATE_NO_WINDOW
+            )
+        except Exception as exc:
+            error("Could not launch worker: {}".format(exc))
+            return
+
         info("Worker launched (PID {}).".format(proc.pid))
         info("Check logs/ppec_worker.log in: {}".format(SCRIPT_DIR))
-    except Exception as exc:
-        error("Could not launch worker: {}".format(exc))
+        try:
+            exit_code = proc.wait()
+        except Exception as exc:
+            error("Could not monitor worker completion: {}".format(exc))
+        else:
+            if exit_code == 0:
+                info("Worker completed successfully (exit code 0).")
+            else:
+                error("Worker failed with exit code {}.".format(exit_code))
 
-    info("END -- launcher finished.")
-    info("=" * 52)
+        info("END -- launcher finished.")
+        info("=" * 52)
+    finally:
+        if owns_mutex:
+            try:
+                mutex.ReleaseMutex()
+            except Exception as exc:
+                error("Could not release the PPEC auto-enable lock: {}".format(exc))
+        mutex.Close()
 
 
 # == ENTRY POINT ==============================================================
