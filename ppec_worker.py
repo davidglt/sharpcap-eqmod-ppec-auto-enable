@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Created: 2026-08-28
+# Author: David González López-Tercero <davidglt@dragonit.es>
 # SPDX-FileCopyrightText: 2026 David González López-Tercero <davidglt@dragonit.es>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -79,10 +81,12 @@ PPEC_OFF_RESPONSE = "=060001\r"
 # == HELPERS ==================================================================
 
 def motor_cmd(scope, command):
+    """Send one EQMOD motor-controller passthrough command."""
     return scope.CommandString(">" + command, False)
 
 
 def read_ppec_status(scope):
+    """Query PPEC state and return ON, OFF, an unknown response, or error."""
     try:
         response = motor_cmd(scope, ":q1010000")
         log.info("PPEC query response: %r", response)
@@ -106,6 +110,7 @@ def disconnect(scope):
 
 
 def ensure_ppec_enabled(scope):
+    """Enable PPEC only from a confirmed OFF state and verify activation."""
     status = read_ppec_status(scope)
     log.info("PPEC status: %s", status)
 
@@ -143,6 +148,7 @@ def ensure_ppec_enabled(scope):
 # == MAIN =====================================================================
 
 def main():
+    """Connect to EQMOD, wait for tracking, and ensure PPEC is active."""
     log.info("=" * 52)
     log.info("PPEC worker v1.0.3 starting -- %s",
              datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))

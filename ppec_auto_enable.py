@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Created: 2026-08-28
+# Author: David González López-Tercero <davidglt@dragonit.es>
 # SPDX-FileCopyrightText: 2026 David González López-Tercero <davidglt@dragonit.es>
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -77,6 +79,7 @@ PYTHON_EXE  = os.path.join(SCRIPT_DIR, ".venv", "Scripts", "python.exe")
 # == LOGGING ==================================================================
 
 def log(level, msg):
+    """Write one timestamped message to the console and SharpCap log."""
     ts   = datetime.datetime.now().strftime("%H:%M:%S")
     line = "{}  {:8s}  [PPEC]  {}".format(ts, level, msg)
     print(line)
@@ -85,12 +88,19 @@ def log(level, msg):
     except Exception:
         pass
 
-def info(msg):  log("INFO",    msg)
-def error(msg): log("ERROR",   msg)
+def info(msg):
+    """Write an informational launcher message."""
+    log("INFO", msg)
+
+
+def error(msg):
+    """Write an error launcher message."""
+    log("ERROR", msg)
 
 # == MAIN LOGIC ===============================================================
 
 def enable_ppec_when_ready():
+    """Wait for tracking, launch the worker once, and report its result."""
     mutex = Mutex(False, MUTEX_NAME)
     owns_mutex = False
     try:

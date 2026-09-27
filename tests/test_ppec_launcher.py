@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Created: 2026-09-27
+# Author: David González López-Tercero <davidglt@dragonit.es>
+# SPDX-FileCopyrightText: 2026 David González López-Tercero <davidglt@dragonit.es>
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Regression tests for PPEC launcher locking and worker supervision."""
+
 import importlib.util
 import sys
 import types

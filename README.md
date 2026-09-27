@@ -169,10 +169,13 @@ diagnostic record. The worker exits with an error status if the initial PPEC
 state cannot be confirmed, the enable command fails, or PPEC is not confirmed
 active afterward.
 
+## Author
+
+David González López-Tercero
+
 ## License
 
-This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
+Copyright © 2026 David González López-Tercero.
 
-You are free to use, study, modify and redistribute this software, provided
-that all distributed versions and modifications remain under GPL v3.
-See [LICENSE.txt](LICENSE.txt) for the full license text.
+This project is licensed under the GNU General Public License v3.0 or later
+(GPL-3.0-or-later). See [LICENSE.txt](LICENSE.txt) for the full text.
